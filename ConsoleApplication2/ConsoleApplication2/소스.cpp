@@ -82,14 +82,12 @@ double *IMPEDANCEWEIGHTS(double r_root, double dt, double eps)
 	
 	for (n = 0; n < N; n++)	{
 		for (m = 0; m < (2 * N - 1); m++) {
-			x1 += Z[m]*exp();
-		
+			complex <double> b(0.0, PI*m*n / N);
+			x1 += Z[m]*exp(b);
 		}
-		x1 = x1*pow(eta, -n) / (2 * N);
-		
+		x1 = x1*pow(eta, -n) / (2.0 * N);
 
-		//printf("Zn = %lf + %lf i \n", x1, x2);
-
+		cout << x1 << endl;
 	}
 	
 	return 0;
@@ -100,7 +98,6 @@ double IMPEDANCE(double r_root, complex<double> s, int Na, int Nb, complex <doub
 {
 	/* F recursive function */
 	/* Output: Laplace transform of tree impedance */
-
 	double alpha = 0.91;
 	double beta = 0.58;
 	double r_min = 0.003;
@@ -118,7 +115,7 @@ double IMPEDANCE(double r_root, complex<double> s, int Na, int Nb, complex <doub
 	{
 		if (imag(table[Na + 1][Nb]) != 0)
 		{
-			ZD1 = IMPEDANCE(r_root, s, Na + 1, Nb, table);
+			ZD1 = IMPEDANCE(r_root, s, Na + 1, Nb, table, Z, m);
 		}
 		else
 		{
@@ -127,7 +124,7 @@ double IMPEDANCE(double r_root, complex<double> s, int Na, int Nb, complex <doub
 
 		if (imag(table[Na][Nb + 1]) != 0)
 		{
-			ZD2 = IMPEDANCE(r_root, s, Na, Nb + 1, table);
+			ZD2 = IMPEDANCE(r_root, s, Na, Nb + 1, table, Z, m);
 		}
 		else
 		{
