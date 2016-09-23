@@ -66,7 +66,7 @@ double *IMPEDANCEWEIGHTS(double r_root, double dt, double eps)
 		complex <double> Sigma;
 		Sigma = zta*zta/2.0 - 2.0*zta+1.5;
 
-		x = sqrt(-1.0);
+		x = -1.0;
 		for (k = 0; k<38; k++) {
 			for (j = 0; j<38; j++) {
 				table[k][j] = x;
@@ -98,8 +98,9 @@ double IMPEDANCE(double r_root, complex<double> s, int Na, int Nb, complex <doub
 {
 	/* F recursive function */
 	/* Output: Laplace transform of tree impedance */
-	double alpha = 0.91;
-	double beta = 0.58;
+	double x = -1.0;
+	double alpha = 0.9;
+	double beta = 0.6;
 	double r_min = 0.003;
 	double Z_term = 0;	// ???
 	complex <double> ZL, ZD1, ZD2;
@@ -113,30 +114,32 @@ double IMPEDANCE(double r_root, complex<double> s, int Na, int Nb, complex <doub
 	}
 	else
 	{
-		if (imag(table[Na + 1][Nb]) != 0)
+		if (table[Na + 1][Nb] == x)
 		{
-			ZD1 = IMPEDANCE(r_root, s, Na + 1, Nb, table, Z, m);
+			IMPEDANCE(r_root, s, Na + 1, Nb, table, Z, m);
+			ZD1 = Z[m];
 		}
 		else
 		{
 			ZD1 = table[Na + 1][Nb];
 		}
 
-		if (imag(table[Na][Nb + 1]) != 0)
-		{
-			ZD2 = IMPEDANCE(r_root, s, Na, Nb + 1, table, Z, m);
+		if (table[Na][Nb + 1] == x)
+		{		
+			IMPEDANCE(r_root, s, Na, Nb + 1, table, Z, m);
+			ZD2 = Z[m];
 		}
 		else
 		{
 			ZD2 = table[Na][Nb + 1];
 		}
-
+		
 		ZL = ZD1 * ZD2 / (ZD1 + ZD2);
-		//	printf("ZD1=%f ||| ZD2=%f ||| ZL=%f \n", ZD1, ZD2, ZL);
+		//cout << ZL << endl;
 	}
 
 	// Z0를 a1과 a2로 나타내서 만들기.
-
+			
 	 
 	SINGLEVESSELIMP(ZL, s, r0, &Z0);
 	//printf("Na = %d, Nb = %d, Z0 = %f\n", Na, Nb, Z0);
@@ -144,8 +147,8 @@ double IMPEDANCE(double r_root, complex<double> s, int Na, int Nb, complex <doub
 	table[Na][Nb] = Z0;
 
 	Z[m] = Z0;
-																					// Z 0 -> return 해주기
-	return real(Z0);
+													// Z 0 -> return 해주기
+	return 0;
 }
 
 
@@ -183,25 +186,26 @@ double SINGLEVESSELIMP(complex<double> ZL, complex <double> s, double r0, comple
 
 	if (real(s)== 0 && imag (s)== 0)
 	{
-		*Z0 = ZL + 2 * (gamma + 2)*mu*lamda / (PI*r0*r0*r0);
-		
+		 *Z0 = ZL +( (2.0 * (gamma + 2.0)*mu*lamda )/ (PI*r0*r0*r0));
+		// cout << ZL << endl;
 	}
 	else
 	{
 		del = 2 * mu*(gamma + 2) / (rho*r0*r0);
 		ds = sqrt((PI*r0*r0) / (C*rho*s*(s + del)));
-		*Z0 = ((ZL + tanh(L/ds)/s*ds*C)/(s*ds*C*ZL*tanh(L/ds)+1.0));
+		*Z0 = ((ZL + tanh(L/ds)/(s*ds*C))/(s*ds*C*ZL*tanh(L/ds)+1.0));
 
 	}
-	cout << ds << endl;
+	//cout << ds<< endl;
+	//cout << *Z0 << endl;
 	//printf("%lf  +  %lf i \n", real(ds), imag(ds));
-	return real(ZL);
+	return 0;
 }
 
 void main()
 {
 	double dt = 0.05;
-	double r_root = 0.4;
+	double r_root = 0.05;
 	double eps = pow(10.0, -10);
 	double*Z;
 
